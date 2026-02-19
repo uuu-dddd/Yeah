@@ -1,57 +1,31 @@
 import streamlit as st
 
-st.set_page_config(page_title="서술형 평가 도우미", layout="wide")
+st.set_page_config(page_title="펭귄 누적 앱", layout="centered")
 
-st.title("📘 서술형 평가 작성 앱")
+st.title("🐧 펭귄을 모아보자!")
 
-# -----------------------
-# 문제 설정
-# -----------------------
-question = "식물이 광합성을 하는 이유를 설명하시오."
-keywords = ["빛", "이산화탄소", "산소", "포도당"]
+# -------------------------
+# 상태 저장 (처음 실행 시 0으로 설정)
+# -------------------------
+if "penguin_count" not in st.session_state:
+    st.session_state.penguin_count = 0
 
-st.subheader("📝 문제")
-st.write(question)
+# -------------------------
+# 버튼
+# -------------------------
+if st.button("🐧 펭귄 추가하기"):
+    st.session_state.penguin_count += 1
 
-# -----------------------
-# 학생 정보 입력
-# -----------------------
-student_name = st.text_input("학생 이름을 입력하세요")
+st.subheader(f"현재 펭귄 수: {st.session_state.penguin_count}")
 
-answer = st.text_area("학생 서술 답안을 입력하세요", height=200)
+# -------------------------
+# 움직이는 펭귄 GIF
+# (온라인 GIF 사용 가능)
+# -------------------------
+penguin_gif = "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif"
 
-# -----------------------
-# 채점 버튼
-# -----------------------
-if st.button("채점하기"):
-
-    if answer.strip() == "":
-        st.warning("답안을 입력하세요!")
-    else:
-        score = 0
-        matched_keywords = []
-
-        for keyword in keywords:
-            if keyword in answer:
-                score += 1
-                matched_keywords.append(keyword)
-
-        total_score = len(keywords)
-
-        st.subheader("📊 채점 결과")
-        st.write(f"총점: {score} / {total_score}")
-        st.write("✅ 포함된 핵심 개념:", matched_keywords)
-
-        # 피드백 생성
-        missing = list(set(keywords) - set(matched_keywords))
-
-        if score == total_score:
-            feedback = "핵심 개념을 모두 포함하여 매우 잘 작성했습니다 👏"
-        else:
-            feedback = f"다음 개념을 보완해 보세요 👉 {', '.join(missing)}"
-
-        # -----------------------
-        # 💬 말풍선 피드백
-        # -----------------------
-        with st.chat_message("assistant"):
-            st.write(feedback)
+# -------------------------
+# 펭귄 누적 출력
+# -------------------------
+for i in range(st.session_state.penguin_count):
+    st.image(penguin_gif, width=120)
