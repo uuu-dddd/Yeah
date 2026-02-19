@@ -1,9 +1,9 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="무로딩 귀여운 펭귄", layout="centered")
+st.set_page_config(page_title="지속 물리 펭귄", layout="centered")
 
-st.title("🐧 남극 귀요미 펭귄 놀이터")
+st.title("🐧 계속 움직이는 펭귄 놀이터")
 
 if "count" not in st.session_state:
     st.session_state.count = 0
@@ -41,9 +41,46 @@ html_code = f"""
 const box = document.getElementById("box");
 const boxWidth = 650;
 const boxHeight = 420;
-const penguins = [];
 
-// 🐧 귀여운 SVG (내장 이미지 → 로딩 없음)
+// 🔥 이미 존재하면 유지
+if (!window.penguins) {{
+    window.penguins = [];
+}}
+
+if (!window.animationStarted) {{
+    window.animationStarted = true;
+
+    function update() {{
+        window.penguins.forEach((p, i) => {{
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x <= 0 || p.x + p.size >= boxWidth) p.vx *= -1;
+            if (p.y <= 0 || p.y + p.size >= boxHeight) p.vy *= -1;
+
+            window.penguins.forEach((other, j) => {{
+                if (i !== j) {{
+                    let dx = p.x - other.x;
+                    let dy = p.y - other.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < p.size) {{
+                        p.vx *= -1;
+                        p.vy *= -1;
+                    }}
+                }}
+            }});
+
+            p.el.style.left = p.x + "px";
+            p.el.style.top = p.y + "px";
+        }});
+
+        requestAnimationFrame(update);
+    }}
+
+    update();
+}}
+
+// 🐧 귀여운 SVG
 const penguinSVG = `
 <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
   <ellipse cx="50" cy="65" rx="35" ry="45" fill="#222"/>
@@ -58,7 +95,11 @@ const penguinSVG = `
 </svg>
 `;
 
-function createPenguin() {{
+// 🔥 현재 펭귄 수만큼 부족한 수만 추가
+let currentCount = window.penguins.length;
+let targetCount = {st.session_state.count};
+
+for (let i = currentCount; i < targetCount; i++) {{
     const div = document.createElement("div");
     div.className = "penguin";
     div.innerHTML = penguinSVG;
@@ -72,44 +113,9 @@ function createPenguin() {{
         size: 50
     }};
 
-    penguins.push(penguin);
+    window.penguins.push(penguin);
     box.appendChild(div);
 }}
-
-for (let i = 0; i < {st.session_state.count}; i++) {{
-    createPenguin();
-}}
-
-function update() {{
-    penguins.forEach((p, i) => {{
-        p.x += p.vx;
-        p.y += p.vy;
-
-        // 벽 충돌
-        if (p.x <= 0 || p.x + p.size >= boxWidth) p.vx *= -1;
-        if (p.y <= 0 || p.y + p.size >= boxHeight) p.vy *= -1;
-
-        // 펭귄끼리 충돌
-        penguins.forEach((other, j) => {{
-            if (i !== j) {{
-                let dx = p.x - other.x;
-                let dy = p.y - other.y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < p.size) {{
-                    p.vx *= -1;
-                    p.vy *= -1;
-                }}
-            }}
-        }});
-
-        p.el.style.left = p.x + "px";
-        p.el.style.top = p.y + "px";
-    }});
-
-    requestAnimationFrame(update);
-}}
-
-update();
 </script>
 </body>
 </html>
