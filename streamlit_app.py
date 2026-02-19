@@ -25,27 +25,33 @@ answer = st.text_area("학생 서술 답안을 입력하세요", height=200)
 # -----------------------
 if st.button("채점하기"):
 
-    score = 0
-    matched_keywords = []
-
-    for keyword in keywords:
-        if keyword in answer:
-            score += 1
-            matched_keywords.append(keyword)
-
-    total_score = len(keywords)
-
-    st.subheader("📊 채점 결과")
-    st.write(f"총점: {score} / {total_score}")
-
-    st.write("✅ 포함된 핵심 개념:", matched_keywords)
-
-    # 피드백 생성
-    missing = list(set(keywords) - set(matched_keywords))
-
-    if score == total_score:
-        feedback = "핵심 개념을 모두 포함하여 매우 잘 작성했습니다."
+    if answer.strip() == "":
+        st.warning("답안을 입력하세요!")
     else:
-        feedback = f"다음 개념을 보완해 보세요: {', '.join(missing)}"
+        score = 0
+        matched_keywords = []
 
-    st.subheader("💬 피드백")
+        for keyword in keywords:
+            if keyword in answer:
+                score += 1
+                matched_keywords.append(keyword)
+
+        total_score = len(keywords)
+
+        st.subheader("📊 채점 결과")
+        st.write(f"총점: {score} / {total_score}")
+        st.write("✅ 포함된 핵심 개념:", matched_keywords)
+
+        # 피드백 생성
+        missing = list(set(keywords) - set(matched_keywords))
+
+        if score == total_score:
+            feedback = "핵심 개념을 모두 포함하여 매우 잘 작성했습니다 👏"
+        else:
+            feedback = f"다음 개념을 보완해 보세요 👉 {', '.join(missing)}"
+
+        # -----------------------
+        # 💬 말풍선 피드백
+        # -----------------------
+        with st.chat_message("assistant"):
+            st.write(feedback)
